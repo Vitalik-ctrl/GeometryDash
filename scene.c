@@ -59,13 +59,11 @@ int main(int argc, char *argv[]) {
   struct timespec loop_delay;
   loop_delay.tv_sec = 0;
   loop_delay.tv_nsec = 150 * 1000 * 1000;
-
-  int triangle_x, triangle_y;
   int step = 0;
 
   Vector2 v0 = {260, BASE};
   Vector2 v1 = {340, BASE};
-  Vector2 v2 = {300, 150};
+  Vector2 v2 = {300, 180};
   Vector2 squarePos = {0, 0};
 
   uint32_t current_progress_unit = progress;
@@ -102,22 +100,16 @@ int main(int argc, char *argv[]) {
     // Scene. Draws 3 triangles with coords-step: movement to the left
     draw_base(fb, 0x0);
 
-    triangle_x = 260, triangle_y = 340;
-    draw_triangle(fb, triangle_x, triangle_y, 0x0);
-
-    printf("%d %d\n", squarePos.x, squarePos.y);
-    printf("%d %d\n", v0.x, v0.y);
-    printf("%d %d\n", v1.x, v1.y);
-    printf("%d %d\n", v2.x, v2.y);
     if (CheckCollisionSquareTriangle(squarePos, SQUARE_SIZE, v0, v1, v2)) {
       printf("Trinagle & Square colliosion\n");
     }
+    
+    draw_triangle(fb, v0.x-=4, v1.x-=4, 0x0);
 
     // triangle_x = 400-step, triangle_y = 480-step;
     // draw_triangle(fb, triangle_x, triangle_y, 0x0);
     // triangle_x = 800-step, triangle_y = 880-step;
     // draw_triangle(fb, triangle_x, triangle_y, 0x0);
-
 
     // Send pixels on LCD screen
     parlcd_write_cmd(parlcd_mem_base, 0x2c);
@@ -135,3 +127,7 @@ int main(int argc, char *argv[]) {
  
   return 0;
 }
+
+// int generate_obstacle() {
+
+// }
