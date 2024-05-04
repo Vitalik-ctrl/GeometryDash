@@ -6,10 +6,13 @@
 #include <math.h>
 #include <string.h>
 #include <termios.h>
+
 #include "mzapo_parlcd.h"
 #include "mzapo_phys.h"
 #include "mzapo_regs.h"
 #include "font_types.h"
+#include "collisions.h"
+#include "drawer.h"
 
 #define M_PI 3.1415
 
@@ -43,17 +46,11 @@ unsigned short fb[320*480*2];
 font_descriptor_t *fdes;
 int scale = 4;
 
-void draw_pixel(int x, int y, unsigned short color) {
-  if (x >= 0 && x < 480 && y >= 0 && y < 320) {
-    fb[x + 480 * y] = color;
-  }
-}
-
 void draw_pixel_big(int x, int y, unsigned short color) {
   int i, j;
   for (i = 0; i < scale; i++) {
     for (j = 0; j < scale; j++) {
-      draw_pixel(x + i, y + j, color);
+      draw_pixel(fb, x + i, y + j, color);
     }
   }
 }
@@ -95,7 +92,7 @@ void draw_char(int x, int y, char ch, unsigned short color) {
 void draw_rect(int x, int y, int width, int height, unsigned short color) {
   for (int i = 0; i < width; i++) {
     for (int j = 0; j < height; j++) {
-      draw_pixel(x + i, y + j, color);
+      draw_pixel(fb, x + i, y + j, color);
     }
   }
 }
@@ -104,6 +101,7 @@ int main(int argc, char *argv[]) {
 
   unsigned char *parlcd_mem_base, *mem_base;
   int i, j;
+  int first_time = 1;
 
   parlcd_mem_base = map_phys_address(PARLCD_REG_BASE_PHYS, PARLCD_REG_SIZE, 0);
   if (parlcd_mem_base == NULL) exit(1);
@@ -125,9 +123,9 @@ int main(int argc, char *argv[]) {
   loop_delay.tv_sec = 0;
   loop_delay.tv_nsec = 150 * 1000 * 1000;
   int xx=0, yy=0;
-  while (1) {
 
-      int x = 20;
+  while (1) {
+  int x = 20;
   int y = 60;
 
   // Draw logo
@@ -135,42 +133,44 @@ int main(int argc, char *argv[]) {
     char ch = logo[i];
     draw_char(x, y, ch, col);
     x += (char_width(logo[i]) * 3.5 + 5);
-    parlcd_write_cmd(parlcd_mem_base, 0x2c);
-    for (int ptr = 0; ptr < 480 * 320; ptr++) parlcd_write_data(parlcd_mem_base, fb[ptr]);
-    sleep(0.5);
+    // parlcd_write_cmd(parlcd_mem_base, 0x2c);
+    // for (int ptr = 0; ptr < 480 * 320; ptr++) parlcd_write_data(parlcd_mem_base, fb[ptr]);
+    // sleep(0.5);
   }
 
   // Draw "Play" label and gray rectangle
   x = 20;
   draw_rect(15, y + 80, 2.5 * strlen(play) * fdes->maxwidth, fdes->height * scale, 0x8410); // Gray rectangle
+  if (rects_intersect(xx, yy, 20, 15, y + 80, 2.5 * strlen(play) * fdes->maxwidth, fdes->height * scale)) {
+    printf("Play button is active!\n");
+  }
   for (int i = 0; i < strlen(play); i++) {
     char ch = play[i];
     draw_char(x, y + 80, ch, col);
     x += (char_width(play[i]) * 3.5 + 5);
-    parlcd_write_cmd(parlcd_mem_base, 0x2c);
-    for (int ptr = 0; ptr < 480 * 320; ptr++) parlcd_write_data(parlcd_mem_base, fb[ptr]);
-    sleep(0.5);
+    // parlcd_write_cmd(parlcd_mem_base, 0x2c);
+    // for (int ptr = 0; ptr < 480 * 320; ptr++) parlcd_write_data(parlcd_mem_base, fb[ptr]);
+    // sleep(0.5);
   }
 
   // Draw "Settings" label and gray rectangle
   x = 20;
   draw_rect(15, y + 160, 2.5 * strlen(settings) * fdes->maxwidth, fdes->height * scale, 0x8410); // Gray rectangle
+  if (rects_intersect(xx, yy, 20, 15, y + 160, 2.5 * strlen(settings) * fdes->maxwidth, fdes->height * scale)) {
+      printf("Settings button is active!\n");
+  }
   for (int i = 0; i < strlen(settings); i++) {
     char ch = settings[i];
     draw_char(x, y + 160, ch, col);
     x += (char_width(settings[i]) * 3.5 + 5);
-    parlcd_write_cmd(parlcd_mem_base, 0x2c);
-    for (int ptr = 0; ptr < 480 * 320; ptr++) parlcd_write_data(parlcd_mem_base, fb[ptr]);
-    sleep(0.5);
+    // parlcd_write_cmd(parlcd_mem_base, 0x2c);
+    // for (int ptr = 0; ptr < 480 * 320; ptr++) parlcd_write_data(parlcd_mem_base, fb[ptr]);
+    // sleep(0.5);
   }
 
     int r = *(volatile uint32_t*)(mem_base + SPILED_REG_KNOBS_8BIT_o);
     if ((r&0x7000000)!=0) {
       break;
-    }
-
-      for (int ptr = 0; ptr < 320*480 ; ptr++) {
-        fb[ptr]=0u;
     }
     
     xx = ((r&0xff)*480)/256;
@@ -178,16 +178,20 @@ int main(int argc, char *argv[]) {
 
     for (j=0; j<20; j++) {
       for (i=0; i<20; i++) {
-        draw_pixel(i+xx,j+yy,0x7ff);
+        draw_pixel(fb, i+xx,j+yy,0x7ff);
       }
     }
 
     parlcd_write_cmd(parlcd_mem_base, 0x2c);
     for (int ptr = 0; ptr < 480*320 ; ptr++) {
-        parlcd_write_data(parlcd_mem_base, fb[ptr]);
+      parlcd_write_data(parlcd_mem_base, fb[ptr]);
     }
 
     clock_nanosleep(CLOCK_MONOTONIC, 0, &loop_delay, NULL);
+
+    for (int ptr = 0; ptr < 320*480 ; ptr++) {
+      fb[ptr]=0u;
+    }
   }
 
   sleep(20);

@@ -2,8 +2,8 @@
 #include "collisions.h"
 
 int rects_intersect(int x1, int y1, int s1, int x2, int y2, int w2, int h2) {
-  int within_width = x1 > x2 && x1 + s1 < x2 + w2;
-  int within_height = y1 + s1 > h2;
+  int within_width = x1 >= x2 && x1 + s1 <= x2 + w2;
+  int within_height = y1 + s1 >= y2 && y1 + s1 <= y2 + h2;
   return within_width && within_height;
 }
 
