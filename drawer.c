@@ -20,6 +20,15 @@ void draw_square(unsigned short *fb, int x, int y, int size, unsigned short colo
   }
 }
 
+void draw_rect(unsigned short *fb, Vector2 coords, int width, int height, unsigned short color) {
+  printf("Draw rect. coords: {%d, %d}, w: %d, h: %d\n", coords.x, coords.y, width, height);
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i++) {
+      draw_pixel(fb, i + coords.x, j + coords.y, color);
+    }
+  }
+}
+
 // Draw base
 void draw_base(unsigned short *fb, unsigned short color) {
   for (int j = SCREEN_HEIGHT; j > BASE; j--) {

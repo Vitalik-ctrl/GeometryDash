@@ -17,23 +17,24 @@
 
 unsigned short *fb;
 
+rect_t generate_obstacle() {
+  rect_t rect;
+  rect.coords.x = 0;
+  rect.coords.y = 0;
+  rect.width = 70;
+  rect.height = 70;
+  rect.color = 0x0;
+  return rect;
+}
+
 int main(int argc, char *argv[]) {
 
-  int i,j;
-  int ptr;
-  unsigned int c;
   int end = 0;
-
   uint32_t progress = 1 << 31;
 
   unsigned char *parlcd_mem_base, *mem_base;
 
   fb  = (unsigned short *)malloc(SCREEN_HEIGHT * SCREEN_WIDTH * 2);
- 
-  printf("*************************\n");
-  printf("-- Start Application --\n");
-  printf("*************************\n");
- 
   parlcd_mem_base = map_phys_address(PARLCD_REG_BASE_PHYS, PARLCD_REG_SIZE, 0);
   if (parlcd_mem_base == NULL) exit(1);
  
@@ -41,19 +42,13 @@ int main(int argc, char *argv[]) {
   if (mem_base == NULL) exit(1);
  
   parlcd_hx8357_init(parlcd_mem_base);
- 
   parlcd_write_cmd(parlcd_mem_base, 0x2c);
 
   // allocate all pixels and set them to 0
-  ptr = 0;
-  for (i = 0; i < SCREEN_HEIGHT; i++) 
-  {
-    for (j = 0; j < SCREEN_WIDTH; j++) 
-    {
-      c = 0;
-      fb[ptr]= c;
-      parlcd_write_data(parlcd_mem_base, fb[ptr++]);
-    }
+  int pixels_count = SCREEN_HEIGHT * SCREEN_WIDTH;
+  for (int ptr = 0; ptr < pixels_count; ptr++) {
+    fb[ptr] = 0;
+    parlcd_write_data(parlcd_mem_base, fb[ptr++]);
   }
  
   struct timespec loop_delay;
@@ -105,15 +100,12 @@ int main(int argc, char *argv[]) {
     }
     
     draw_triangle(fb, v0.x-=4, v1.x-=4, 0x0);
-
-    // triangle_x = 400-step, triangle_y = 480-step;
-    // draw_triangle(fb, triangle_x, triangle_y, 0x0);
-    // triangle_x = 800-step, triangle_y = 880-step;
-    // draw_triangle(fb, triangle_x, triangle_y, 0x0);
+    rect_t obs = generate_obstacle();
+    draw_rect(fb, obs.coords, obs.width, obs.height, obs.color);
 
     // Send pixels on LCD screen
     parlcd_write_cmd(parlcd_mem_base, 0x2c);
-    for (ptr = 0; ptr < SCREEN_WIDTH * SCREEN_HEIGHT; ptr++) {
+    for (int ptr = 0; ptr < SCREEN_WIDTH * SCREEN_HEIGHT; ptr++) {
         parlcd_write_data(parlcd_mem_base, fb[ptr]);
     }
 
@@ -127,7 +119,3 @@ int main(int argc, char *argv[]) {
  
   return 0;
 }
-
-// int generate_obstacle() {
-
-// }
