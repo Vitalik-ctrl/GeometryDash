@@ -16,11 +16,10 @@ typedef struct {
 
 // !! Player model struct !!
 typedef struct {
+    Vector2 coords;
     int size;
     int rotation; // rotation angle in degrees
     int jump_height;
-    int x; // x pos of the center
-    int y; // y pos of the center
     int movement_x; // movement in the direction of x
     int movement_y;
 } player_t;

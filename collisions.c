@@ -3,7 +3,7 @@
 
 int rects_intersect(int x1, int y1, int s1, int x2, int y2, int w2, int h2) {
   int within_width = x1 >= x2 && x1 + s1 <= x2 + w2;
-  int within_height = y1 + s1 >= y2 && y1 + s1 <= y2 + h2;
+  int within_height = y1 >= y2 && y1 + s1 <= y2 + h2;
   return within_width && within_height;
 }
 
@@ -54,8 +54,8 @@ bool CheckCollisionSquareTriangle(Vector2 squarePos, float squareSize, Vector2 v
 }
 
 bool CheckCollisionPlayerFloor(int floor, player_t *player, input_t *input) {
-  if (player->y > (floor - player->size)) {
-    player->y = floor - player->size;
+  if (player->coords.y > (floor - player->size)) {
+    player->coords.y = floor - player->size;
     player->movement_y = 0;
     input->R_jump = false;
     return true;

@@ -21,7 +21,6 @@ void draw_square(unsigned short *fb, int x, int y, int size, unsigned short colo
 }
 
 void draw_rect(unsigned short *fb, Vector2 coords, int width, int height, unsigned short color) {
-  printf("Draw rect. coords: {%d, %d}, w: %d, h: %d\n", coords.x, coords.y, width, height);
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
       draw_pixel(fb, i + coords.x, j + coords.y, color);
@@ -51,7 +50,7 @@ void draw_triangle(unsigned short *fb, int start_pos, int end_pos, unsigned shor
 
 void draw_line(unsigned short *fb) {
     for (int i = 40; i < SCREEN_WIDTH - 40; i++) {
-      draw_pixel(fb, i, BASE, 0xd3d3d3);
+      draw_pixel(fb, i, BASE, (unsigned short) 0xd3d3d3);
     }
     for (int i = 70; i < SCREEN_WIDTH - 70; i++) {
       draw_pixel(fb, i, BASE, 0xffff);
