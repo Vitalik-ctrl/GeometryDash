@@ -34,6 +34,52 @@ void draw_pixel_big(int x, int y, unsigned short color);
 int char_width(int ch);
 void draw_char(int x, int y, char ch, unsigned short color);
 
+void draw_rect_borders(unsigned short *fb, Vector2 coords, int width, int height, int border_width, unsigned short color) {
+    // Drawing top and bottom borders
+    for (int j = 0; j < border_width; j++) {
+        for (int i = 0; i < width; i++) {
+            draw_pixel(fb, i + coords.x, coords.y + j, color); // Top border
+            draw_pixel(fb, i + coords.x, coords.y + height - 1 - j, color); // Bottom border
+        }
+    }
+
+    // Drawing left and right borders (excluding corners)
+    for (int j = border_width; j < height - border_width; j++) {
+        for (int i = 0; i < border_width; i++) {
+            draw_pixel(fb, coords.x + i, j + coords.y, color); // Left border
+            draw_pixel(fb, coords.x + width - 1 - i, j + coords.y, color); // Right border
+        }
+    }
+}
+
+void drawCircle(unsigned short *fb, int centerX, int centerY, int radius, int width, int height) {
+    int x = radius;
+    int y = 0;
+    int err = 0;
+
+    while (x >= y) {
+        // Drawing circle points using symmetry
+        fb[(centerX + x) + (centerY + y) * width] = 0xFFFF; // Assuming white color
+        fb[(centerX + y) + (centerY + x) * width] = 0xFFFF;
+        fb[(centerX - y) + (centerY + x) * width] = 0xFFFF;
+        fb[(centerX - x) + (centerY + y) * width] = 0xFFFF;
+        fb[(centerX - x) + (centerY - y) * width] = 0xFFFF;
+        fb[(centerX - y) + (centerY - x) * width] = 0xFFFF;
+        fb[(centerX + y) + (centerY - x) * width] = 0xFFFF;
+        fb[(centerX + x) + (centerY - y) * width] = 0xFFFF;
+
+        if (err <= 0) {
+            y += 1;
+            err += 2*y + 1;
+        }
+
+        if (err > 0) {
+            x -= 1;
+            err -= 2*x + 1;
+        }
+    }
+}
+
 
 int main(int argc, char *argv[]) {
 
@@ -75,6 +121,71 @@ void draw_pixel_big(int x, int y, unsigned short color) {
     for (j = 0; j < scale; j++) {
       draw_pixel(fb, x + i, y + j, color);
     }
+  }
+}
+
+void activate_settings(unsigned char *parlcd_mem_base, unsigned char *mem_base) {
+  int i, j;
+  int ptr;
+
+  struct timespec loop_delay;
+  loop_delay.tv_sec = 0;
+  loop_delay.tv_nsec = 100 * 1000;
+
+    int xx = 0;
+    int yy = 0;
+
+    while (1) {
+    // reading from knobs and ending the loop if knob is pressed
+    int r = *(volatile uint32_t*)(mem_base + SPILED_REG_KNOBS_8BIT_o);
+    if ((r>>24)&B_KNOB_o) {
+      break;
+    }
+
+    // set pixels' values in the buffer
+    for (ptr = 0; ptr < SCREEN_WIDTH * SCREEN_HIGHT; ptr++) {
+        fb[ptr] = 0u;
+    }
+    char* speed_label = "Speed";
+
+    int x = 20;
+    int y = 70;
+
+    for (int i = 0; i < strlen(speed_label); i++) {
+      char ch = speed_label[i];
+      draw_char(x, y, ch, 0xb3ffff);
+      x += (char_width(speed_label[i]) * 3.5 + 5);
+    }
+
+    // Speed line
+    for (j=70; j < SCREEN_WIDTH-70; j++) {
+      draw_pixel(fb, j, y+95, 0x7ff);
+    }
+
+    // Drawing a small circle at center
+    int centerX = 70;
+    int centerY = y+95;
+    int radius = 10;
+
+    xx = ((r>>8&0xff)*480)/256;
+    printf("%d\n", xx);
+
+    drawCircle(fb, centerX + xx, centerY, radius, SCREEN_WIDTH, SCREEN_HIGHT);
+
+    for (j=0; j<12; j++) {
+      for (i=0; i<12; i++) {
+        draw_pixel(fb, i+xx,j+yy,0x0);
+      }
+    }
+    
+
+    // write the data from buffer to the lcd display
+    parlcd_write_cmd(parlcd_mem_base, 0x2c);
+    for (ptr = 0; ptr < SCREEN_WIDTH * SCREEN_HIGHT ; ptr++) {
+        parlcd_write_data(parlcd_mem_base, fb[ptr]);
+    }
+    // FPS
+    clock_nanosleep(CLOCK_MONOTONIC, 0, &loop_delay, NULL);
   }
 }
 
@@ -218,41 +329,42 @@ void activate_menu(unsigned int col, unsigned char *parlcd_mem_base, unsigned ch
   int i, j;
   while (1) {
     int x = 20;
-    int y = 60;
-    bool button_is_active = false;
+    int y = 40;
+    bool play_active = false;
+    bool pref_active = false;
 
   // Draw logo
   for (int i = 0; i < strlen(logo); i++) {
     char ch = logo[i];
-    draw_char(x, y, ch, col);
+    draw_char(x, y, ch, 0xb3ffff);
     x += (char_width(logo[i]) * 3.5 + 5);
   }
 
   // Draw "Play" label and gray rectangle
   x = 20;
   Vector2 rect_coords = {15, y + 80};
-  draw_rect(fb, rect_coords, 2.5 * strlen(play) * fdes->maxwidth, fdes->height * scale, 0x8410); // Gray rectangle
+  draw_rect(fb, rect_coords, 2.5 * strlen(play) * fdes->maxwidth, fdes->height * scale, 0x264d00); // Gray rectangle
   if (rects_intersect(xx, yy, 20, 15, y + 80, 2.5 * strlen(play) * fdes->maxwidth, fdes->height * scale)) {
-    printf("Play button is active!\n");
-    button_is_active = true;
+    draw_rect_borders(fb, rect_coords, 2.5 * strlen(play) * fdes->maxwidth, fdes->height * scale, 5, 0x0);
+    play_active = true;
   }
   for (int i = 0; i < strlen(play); i++) {
     char ch = play[i];
-    draw_char(x, y + 80, ch, col);
+    draw_char(x, y + 80, ch, 0xb3ffff);
     x += (char_width(play[i]) * 3.5 + 5);
   }
 
   // Draw "Settings" label and gray rectangle
   x = 20;
   Vector2 rect_coords2 = {15, y + 160};
-  draw_rect(fb, rect_coords2, 2.5 * strlen(settings) * fdes->maxwidth, fdes->height * scale, 0x8410); // Gray rectangle
+  draw_rect(fb, rect_coords2, 2.5 * strlen(settings) * fdes->maxwidth, fdes->height * scale, 0x264d00); // Gray rectangle
   if (rects_intersect(xx, yy, 20, 15, y + 160, 2.5 * strlen(settings) * fdes->maxwidth, fdes->height * scale)) {
-      printf("Settings button is active!\n");
-      button_is_active = true;
+      draw_rect_borders(fb, rect_coords2, 2.5 * strlen(settings) * fdes->maxwidth, fdes->height * scale, 5, 0x0);
+      pref_active = true;
   }
   for (int i = 0; i < strlen(settings); i++) {
     char ch = settings[i];
-    draw_char(x, y + 160, ch, col);
+    draw_char(x, y + 160, ch, 0xb3ffff);
     x += (char_width(settings[i]) * 3.5 + 5);
     // print by chars with animation
     // parlcd_write_cmd(parlcd_mem_base, 0x2c);
@@ -261,17 +373,19 @@ void activate_menu(unsigned int col, unsigned char *parlcd_mem_base, unsigned ch
   }
 
     int r = *(volatile uint32_t*)(mem_base + SPILED_REG_KNOBS_8BIT_o);
-    if (((r>>24)&R_KNOB_o) != 0 && button_is_active) {
+    if (((r>>24)&R_KNOB_o) != 0 && play_active) {
         printf("TADAAAM User clicked a button\n\n\n");
         activate_scene(parlcd_mem_base, mem_base);
+    } else if (((r>>24)&R_KNOB_o) != 0 && pref_active) {
+        activate_settings(parlcd_mem_base, mem_base);
     }
 
     xx = ((r&0xff)*480)/256;
     yy = (((r>>8)&0xff)*320)/256;
 
-    for (j=0; j<20; j++) {
-      for (i=0; i<20; i++) {
-        draw_pixel(fb, i+xx,j+yy,0x7ff);
+    for (j=0; j<12; j++) {
+      for (i=0; i<12; i++) {
+        draw_pixel(fb, i+xx,j+yy,0x0);
       }
     }
 
@@ -283,7 +397,7 @@ void activate_menu(unsigned int col, unsigned char *parlcd_mem_base, unsigned ch
     clock_nanosleep(CLOCK_MONOTONIC, 0, &loop_delay, NULL);
 
     for (int ptr = 0; ptr < 320*480 ; ptr++) {
-      fb[ptr] = 0u;
+      fb[ptr] = 0x001a33;
     }
   }
 }
