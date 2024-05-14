@@ -7,6 +7,7 @@ void activate_menu(unsigned short *fb, font_descriptor_t *fdes, unsigned int col
   struct timespec loop_delay;
   loop_delay.tv_sec = 0;
   loop_delay.tv_nsec = 150 * 1000 * 1000;
+  int speed_level = 1;
 
   char *logo = "GeometryDash";
   char *play = "Play";
@@ -57,11 +58,10 @@ void activate_menu(unsigned short *fb, font_descriptor_t *fdes, unsigned int col
 
     int r = *(volatile uint32_t*)(mem_base + SPILED_REG_KNOBS_8BIT_o);
     if (((r>>24)&R_KNOB_o) != 0 && play_active) {
-        printf("TADAAAM User clicked a button\n\n\n");
-        activate_scene(fb, fdes, parlcd_mem_base, mem_base);
+        printf("Game activated\n\n\n");
+        activate_scene(fb, fdes, parlcd_mem_base, mem_base, speed_level);
     } else if (((r>>24)&R_KNOB_o) != 0 && pref_active) {
-        int speed = activate_settings(fb, fdes, parlcd_mem_base, mem_base);
-        printf("Speed is: %d\n", speed);
+        speed_level = set_speed_level(activate_settings(fb, fdes, parlcd_mem_base, mem_base));
     }
 
     xx = ((r&0xff)*480)/256;
