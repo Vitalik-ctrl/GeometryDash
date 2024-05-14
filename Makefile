@@ -9,11 +9,11 @@ LDFLAGS += -static
 LDLIBS += -lrt -lpthread
 #LDLIBS += -lm
 
-SOURCES = menu.c mzapo_phys.c mzapo_parlcd.c serialize_lock.c drawer.c collisions.c movement.c
+SOURCES = menu.c mzapo_phys.c mzapo_parlcd.c serialize_lock.c drawer.c collisions.c movement.c settings.c scene.c main.c
 # SOURCES = scene.c mzapo_phys.c mzapo_parlcd.c serialize_lock.c drawer.c collisions.c
 SOURCES += font_prop14x16.c font_rom8x16.c
 TARGET_EXE = Application
-TARGET_IP ?= 192.168.223.102
+TARGET_IP ?= 192.168.223.100
 ifeq ($(TARGET_IP),)
 ifneq ($(filter debug run,$(MAKECMDGOALS)),)
 $(warning The target IP address is not set)

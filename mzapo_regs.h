@@ -40,6 +40,10 @@
 #define SPILED_REG_KBDRD_KNOBS_DIRECT_o 0x020
 #define SPILED_REG_KNOBS_8BIT_o         0x024
 
+#define R_KNOB_o 0x4
+#define G_KNOB_o 0x2
+#define B_KNOB_o 0x1
+
 /* Parallel LCD registers */
 
 #define PARLCD_REG_BASE_PHYS  0x43c00000
