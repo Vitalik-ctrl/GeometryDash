@@ -5,6 +5,7 @@
 #include <string.h>
 #include <time.h>
 #include <stdio.h>
+#include <math.h>
 
 #include "font_types.h"
 #include "mzapo_regs.h"

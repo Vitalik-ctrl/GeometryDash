@@ -22,8 +22,6 @@ void draw_square(unsigned short *fb, int x, int y, int size, int *floor, unsigne
     if ((x >= START_POS_X && x <= START_POS_X + PLAYER_HIGHT) || 
         (x + PLAYER_HIGHT >= START_POS_X && x + PLAYER_HIGHT <= START_POS_X + PLAYER_HIGHT)) {
           *floor = y;
-        } else {
-          *floor = BASE_LINE;
         }
   }
 }

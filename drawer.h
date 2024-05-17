@@ -12,8 +12,9 @@
 #define COLOR 256
 #define BASE 250
 #define OBSTACLE_HEIGHT 130
-#define SQUARE_SIZE 30
-#define PLAYER_HIGHT 30
+#define SQUARE_SIZE 60
+#define START_POS_X 160
+#define PLAYER_HIGHT 60
 #define BASE_LINE 260
 #define SCALE 4
 

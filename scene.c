@@ -2,6 +2,8 @@
 
 #include "scene.h"
 
+void draw_level(unsigned short *fb, int *floor, int shift);
+
 void activate_scene(unsigned short *fb, font_descriptor_t *fdes, 
           unsigned char *parlcd_mem_base, unsigned char *mem_base, int speed_level) {
 
@@ -60,7 +62,8 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
     }
 
     // draw obstacless
-    draw_square(fb, 300 - shift, BASE_LINE - PLAYER_HIGHT, PLAYER_HIGHT, &floor, 0x7ff);
+    floor = BASE_LINE;
+    draw_level(fb, &floor, shift);
 
     // draw LINE
     for (j=0; j < SCREEN_WIDTH; j++) {
@@ -83,4 +86,11 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
     a++;
     shift += speed_level;
   }
+}
+
+void draw_level(unsigned short *fb, int *floor, int shift) {
+  draw_square(fb, 700 - shift, BASE_LINE - 60, 60, floor, 0x7ff);
+  draw_square(fb, 1000 - shift, BASE_LINE - 60, 60, floor, 0x7ff);
+  draw_square(fb, 1200 - shift, BASE_LINE - 60, 60, floor, 0x7ff);
+  draw_square(fb, 1400 - shift, BASE_LINE - 60, 60, floor, 0x7ff);
 }

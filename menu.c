@@ -95,11 +95,5 @@ void activate_menu(unsigned short *fb, font_descriptor_t *fdes, unsigned int col
 }
 
 int set_speed_level(int speed) {
-  if (speed > 200) {
-    return 3;
-  } else if (speed > 100) {
-    return 2;
-  } else {
-    return 1;
-  }
+  return round(speed/30) + 2;
 }
