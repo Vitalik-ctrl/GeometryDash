@@ -11,7 +11,7 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
 
   struct timespec loop_delay;
   loop_delay.tv_sec = 0;
-  loop_delay.tv_nsec = 100 * 1000;
+  loop_delay.tv_nsec = 1000 * 1000;
 
   player_t cube;
   cube.coords.x = 0; // Center of the screen
@@ -25,12 +25,14 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
   key.R_jump = false;
 
   size_t a = 0;
+  size_t shift = 0;
+  int floor = BASE_LINE;
 
     while (1) {
     // reading from knobs and ending the loop if knob is pressed
     int r = *(volatile uint32_t*)(mem_base + SPILED_REG_KNOBS_8BIT_o);
     if (((r>>24)&R_KNOB_o) != 0 && !(key.R_jump)) {
-      cube.movement_y = -JUMP_CONSTANT;
+      cube.movement_y = - JUMP_CONSTANT;
       key.R_jump = true;
     }
     else if (((r>>24)&B_KNOB_o) != 0) {
@@ -41,15 +43,16 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
     player_compute_pos(GRAVITY, r, &cube);
 
     // compute colision with floor
-    CheckCollisionPlayerFloor(BASE_LINE, &cube, &key);
+    CheckCollisionPlayerFloor(floor, &cube, &key);
 
 
     // set pixels' values in the buffer
     for (ptr = 0; ptr < SCREEN_WIDTH * SCREEN_HEIGHT; ptr++) {
         fb[ptr] = 0u;
     }
+
     // draw obstacless
-    draw_square(fb, 300, BASE_LINE - 60, 60, 0x7ff);
+    draw_square(fb, 300 - shift, BASE_LINE - 60, 60, &floor, 0x7ff);
 
     // draw LINE
     for (j=0; j < SCREEN_WIDTH; j++) {
@@ -70,5 +73,6 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
     // FPS
     clock_nanosleep(CLOCK_MONOTONIC, 0, &loop_delay, NULL);
     a++;
+    shift += speed_level * 5;
   }
 }

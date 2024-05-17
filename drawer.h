@@ -12,13 +12,16 @@
 #define BASE 250
 #define OBSTACLE_HEIGHT 130
 #define SQUARE_SIZE 60
+#define START_POS_X 60
+#define PLAYER_HIGHT 60
+#define BASE_LINE 260
 #define SCALE 4
 
 void draw_back(unsigned short *fb, unsigned short color);
 
 void draw_pixel(unsigned short *fb, int x, int y, unsigned short color);
 
-void draw_square(unsigned short *fb, int x, int y, int size, unsigned short color);
+void draw_square(unsigned short *fb, int x, int y, int size, int *floor, unsigned short color);
 
 void draw_base(unsigned short *fb, unsigned short color);
 
