@@ -11,6 +11,6 @@ bool CheckCollisionPointTriangle(Vector2 point, Vector2 v0, Vector2 v1, Vector2 
 
 bool CheckCollisionSquareTriangle(Vector2 squarePos, float squareSize, Vector2 v0, Vector2 v1, Vector2 v2);
 
-bool CheckCollisionPlayerFloor(int floor, player_t *player, input_t *input);
+bool CheckCollisionPlayerFloor(int floor, int old_floor, player_t *player, input_t *input);
 
 #endif
