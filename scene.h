@@ -16,6 +16,7 @@
 
 #define GRAVITY 2
 #define JUMP_CONSTANT 20
+#define END_SPACE 100
 
 void activate_scene(unsigned short *fb, font_descriptor_t *fdes, 
                 unsigned char *parlcd_mem_base, unsigned char *mem_base, int speed_level);

@@ -14,6 +14,7 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
   struct timespec loop_delay;
   loop_delay.tv_sec = 0;
   loop_delay.tv_nsec = 1000 * 1000;
+  uint32_t progress = 1 << 31;
 
   player_t cube;
   cube.coords.x = 0; // Center of the screen
@@ -31,7 +32,17 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
   int floor = BASE_LINE;
   bool start_button_is_still_pressed = false;
 
+    uint32_t current_progress_unit = progress;
+    int iterator = 0;
+    int last_position = PLAYER_HIGHT * 100 + END_SPACE;
     while (1) {
+    iterator++;
+    *(volatile uint32_t*)(mem_base + SPILED_REG_LED_LINE_o) = progress; 
+    if (iterator%(last_position/speed_level/32) == 0) {
+        progress += current_progress_unit >> 1; 
+        current_progress_unit >>= 1;
+    }
+
     // reading from knobs and ending the loop if knob is pressed
     int r = *(volatile uint32_t*)(mem_base + SPILED_REG_KNOBS_8BIT_o);
     if (((r>>24)&R_KNOB_o) != 0 && !(key.R_jump) && shift == 0) {
@@ -65,6 +76,8 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
     floor = BASE_LINE;
     draw_level(fb, &floor, shift);
 
+    handle_loss(fb, shift);
+
     // draw LINE
     for (j=0; j < SCREEN_WIDTH; j++) {
       draw_pixel(fb, j, BASE_LINE, 0x7ff);
@@ -88,9 +101,27 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
   }
 }
 
+void handle_loss(unsigned short *fb, int shift) {
+    char *game_over = "Game over :(";
+    font_descriptor_t *fdes;
+    fdes = &font_winFreeSystem14x16;
+    int x = 50;
+    int y = 40;
+
+    for (int i = 0; i < strlen(game_over); i++) {
+      char ch = game_over[i];
+      draw_char(fdes, fb, x, y, ch, 0xb3ffff);
+      x += (char_width(fdes, game_over[i]) * 3.5 + 5);
+  }
+  
+}
+
 void draw_level(unsigned short *fb, int *floor, int shift) {
-  draw_square(fb, 700 - shift, BASE_LINE - 60, 60, floor, 0x7ff);
-  draw_square(fb, 1000 - shift, BASE_LINE - 60, 60, floor, 0x7ff);
-  draw_square(fb, 1200 - shift, BASE_LINE - 60, 60, floor, 0x7ff);
-  draw_square(fb, 1400 - shift, BASE_LINE - 60, 60, floor, 0x7ff);
+  for (int i = 1; i < 80; i++) {
+    draw_square(fb, i*100 - shift, BASE_LINE - 60, 60, floor, 0x7ff);
+    if (i % 7  == 0 || i % 3 == 0) {
+      draw_square(fb, i*100 - shift, BASE_LINE - 120, 60, floor, 0x7ff);
+    }
+  }
+ 
 }

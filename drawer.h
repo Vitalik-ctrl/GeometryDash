@@ -15,7 +15,7 @@
 #define SQUARE_SIZE 60
 #define START_POS_X 160
 #define PLAYER_HIGHT 60
-#define BASE_LINE 260
+#define BASE_LINE 280
 #define SCALE 4
 
 void draw_back(unsigned short *fb, unsigned short color);

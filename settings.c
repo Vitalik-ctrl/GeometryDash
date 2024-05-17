@@ -39,9 +39,11 @@ int activate_settings(unsigned short *fb, font_descriptor_t *fdes, unsigned char
     // Drawing a small circle at center
     int centerX = 70;
     int centerY = y+95;
-    int radius = 10;
+    int radius = 13;
 
-    if (((r>>8&0xff)*480)/256 < 333 && ((r>>8&0xff)*480)/256 > 10) xx = ((r>>8&0xff)*480)/256;
+    if (((r>>8&0xff)*480)/256 > 325) xx = 10;
+    else if (((r>>8&0xff)*480)/256 < 15) xx = 333;
+    else xx = ((r>>8&0xff)*480)/256;
     printf("%d\n", xx);
 
     drawCircle(fb, centerX + xx, centerY, radius, SCREEN_WIDTH, SCREEN_HEIGHT);

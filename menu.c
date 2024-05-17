@@ -7,10 +7,10 @@ void activate_menu(unsigned short *fb, font_descriptor_t *fdes, unsigned int col
   struct timespec loop_delay;
   loop_delay.tv_sec = 0;
   loop_delay.tv_nsec = 15 * 100 * 100;
-  int speed_level = 1;
+  int speed_level = 6;
   uint32_t led_loading = 15;
 
-  char *logo = "GeometryDash";
+  char *logo = "Geometry Dash";
   char *play = "Play";
   char *settings = "Settings";
   int xx = 0;
