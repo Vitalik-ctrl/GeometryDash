@@ -16,7 +16,7 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
   player_t cube;
   cube.coords.x = 0; // Center of the screen
   cube.coords.y = BASE_LINE - PLAYER_HIGHT; // Initial y position
-  cube.size = 60; // Size of the cube
+  cube.size = PLAYER_HIGHT; // Size of the cube
   cube.rotation = 0; // Initial rotation angle
   cube.movement_x = 0;
   cube.movement_y = 0;
@@ -27,15 +27,23 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
   size_t a = 0;
   size_t shift = 0;
   int floor = BASE_LINE;
+  bool start_button_is_still_pressed = false;
 
     while (1) {
     // reading from knobs and ending the loop if knob is pressed
     int r = *(volatile uint32_t*)(mem_base + SPILED_REG_KNOBS_8BIT_o);
-    if (((r>>24)&R_KNOB_o) != 0 && !(key.R_jump)) {
+    if (((r>>24)&R_KNOB_o) != 0 && !(key.R_jump) && shift == 0) {
+      // this is to prevent the jump caused by pressing START
+      start_button_is_still_pressed = true;
+    }
+    else if (((r>>24)&R_KNOB_o) != 0 && !(key.R_jump) && !start_button_is_still_pressed) {
       cube.movement_y = - JUMP_CONSTANT;
       key.R_jump = true;
     }
-    else if (((r>>24)&B_KNOB_o) != 0) {
+    else if (((r>>24)&R_KNOB_o) == 0 && start_button_is_still_pressed) {
+      start_button_is_still_pressed = false;
+    }
+    if (((r>>24)&B_KNOB_o) != 0) {
       break;
     }
 
@@ -52,7 +60,7 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
     }
 
     // draw obstacless
-    draw_square(fb, 300 - shift, BASE_LINE - 60, 60, &floor, 0x7ff);
+    draw_square(fb, 300 - shift, BASE_LINE - PLAYER_HIGHT, PLAYER_HIGHT, &floor, 0x7ff);
 
     // draw LINE
     for (j=0; j < SCREEN_WIDTH; j++) {
@@ -73,6 +81,6 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
     // FPS
     clock_nanosleep(CLOCK_MONOTONIC, 0, &loop_delay, NULL);
     a++;
-    shift += speed_level * 5;
+    shift += speed_level;
   }
 }

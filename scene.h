@@ -14,8 +14,8 @@
 #include "drawer.h"
 #include "collisions.h"
 
-#define GRAVITY 4
-#define JUMP_CONSTANT 30
+#define GRAVITY 2
+#define JUMP_CONSTANT 20
 
 void activate_scene(unsigned short *fb, font_descriptor_t *fdes, 
                 unsigned char *parlcd_mem_base, unsigned char *mem_base, int speed_level);
