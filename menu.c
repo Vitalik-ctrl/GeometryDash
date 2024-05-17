@@ -6,8 +6,9 @@ void activate_menu(unsigned short *fb, font_descriptor_t *fdes, unsigned int col
 
   struct timespec loop_delay;
   loop_delay.tv_sec = 0;
-  loop_delay.tv_nsec = 150 * 1000 * 1000;
+  loop_delay.tv_nsec = 15 * 100 * 100;
   int speed_level = 1;
+  uint32_t led_loading = 15;
 
   char *logo = "GeometryDash";
   char *play = "Play";
@@ -15,11 +16,18 @@ void activate_menu(unsigned short *fb, font_descriptor_t *fdes, unsigned int col
   int xx = 0;
   int yy = 0;
   int i, j;
+
   while (1) {
     int x = 20;
     int y = 40;
     bool play_active = false;
     bool pref_active = false;
+
+    *(volatile uint32_t*)(mem_base + SPILED_REG_LED_LINE_o) = led_loading; 
+    led_loading = led_loading << 1;
+    if (led_loading > 1<<31) {
+      led_loading = 15;
+    }
 
   // Draw logo
   for (int i = 0; i < strlen(logo); i++) {
