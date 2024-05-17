@@ -48,6 +48,9 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
     for (ptr = 0; ptr < SCREEN_WIDTH * SCREEN_HEIGHT; ptr++) {
         fb[ptr] = 0u;
     }
+    // draw obstacless
+    draw_square(fb, 300, BASE_LINE - 60, 60, 0x7ff);
+
     // draw LINE
     for (j=0; j < SCREEN_WIDTH; j++) {
       draw_pixel(fb, j, BASE_LINE, 0x7ff);
