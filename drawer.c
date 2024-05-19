@@ -13,16 +13,17 @@ void draw_pixel(unsigned short *fb, int x, int y, unsigned short color) {
 
 // Draw square
 // which can also be a floor
-void draw_square(unsigned short *fb, int x, int y, int size, int *floor, unsigned short color) {
+void draw_square(unsigned short *fb, int x, int y, int size, int *floor, int *floor_level, unsigned short color) {
   for (int j = 0; j < size; j++) {
     for (int i = 0; i < size; i++) {
       draw_pixel(fb, i + x, j + y, color);
     }
-    // change the floor variable according to the pos of this square
-    if ((x >= START_POS_X && x <= START_POS_X + PLAYER_HIGHT) || 
-        (x + PLAYER_HIGHT >= START_POS_X && x + PLAYER_HIGHT <= START_POS_X + PLAYER_HIGHT)) {
-          *floor = y;
-        }
+  }
+  int current_level = (BASE_LINE - y) / PLAYER_HIGHT;
+  // change the floor variable according to the pos of this square
+  if (current_level >= *floor_level && (x >= START_POS_X && x <= START_POS_X + PLAYER_HIGHT) || (x + PLAYER_HIGHT >= START_POS_X && x + PLAYER_HIGHT <= START_POS_X + PLAYER_HIGHT)) {
+    *floor_level = (BASE_LINE - y) / PLAYER_HIGHT;
+    *floor = y;
   }
 }
 

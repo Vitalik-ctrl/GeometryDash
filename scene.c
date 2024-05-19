@@ -2,7 +2,7 @@
 
 #include "scene.h"
 
-void draw_level(unsigned short *fb, int *floor, int shift);
+void draw_level(unsigned short *fb, int *floor, int *floor_level, int shift);
 
 void activate_scene(unsigned short *fb, font_descriptor_t *fdes, 
           unsigned char *parlcd_mem_base, unsigned char *mem_base, int speed_level) {
@@ -31,6 +31,7 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
   size_t shift = 0;
   int floor = BASE_LINE;
   int old_floor = BASE_LINE;
+  int floor_level = 0;
   bool start_button_is_still_pressed = false;
 
     uint32_t current_progress_unit = progress;
@@ -76,7 +77,8 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
     // draw obstacless
     old_floor = floor;
     floor = BASE_LINE;
-    draw_level(fb, &floor, shift);
+    draw_level(fb, &floor, &floor_level, shift);
+    printf("level of a block %d\n", floor_level);
 
     handle_loss(fb, shift);
 
@@ -87,7 +89,7 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
     // draw PLAYER
     for (j=0; j < PLAYER_HIGHT; j++) {
       for (i=0; i < PLAYER_HIGHT; i++) {
-        draw_pixel(fb, i + cube.coords.x, j + cube.coords.y, 0x7ff);
+        draw_pixel(fb, i + cube.coords.x, j + cube.coords.y, 0x714);
       }
     }
 
@@ -119,36 +121,36 @@ void handle_loss(unsigned short *fb, int shift) {
   
 }
 
-void draw_level(unsigned short *fb, int *floor, int shift) {
+void draw_level(unsigned short *fb, int *floor, int *floor_level, int shift) {
   int level_size = 100;
   int level_map[level_size];
   int step = PLAYER_HIGHT;
 
 
-  draw_square(fb, 5 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
-  draw_square(fb, 6 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
-  draw_square(fb, 7 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
-  draw_square(fb, 8 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
-  draw_square(fb, 8 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, 0x7ff);
-  draw_square(fb, 9 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
-  draw_square(fb, 10 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
-  draw_square(fb, 10 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, 0x7ff);
-  draw_square(fb, 11 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
-  draw_square(fb, 12 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
-  draw_square(fb, 13 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
-  draw_square(fb, 13 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, 0x7ff);
-  draw_square(fb, 14 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
-  draw_square(fb, 14 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, 0x7ff);
-  draw_square(fb, 14 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, 0x7ff);
+  //draw_square(fb, 5 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
+  //draw_square(fb, 6 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
+  //draw_square(fb, 7 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
+  //draw_square(fb, 8 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
+  //draw_square(fb, 8 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, 0x7ff);
+  //draw_square(fb, 9 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
+  //draw_square(fb, 10 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
+  //draw_square(fb, 10 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, 0x7ff);
+  //draw_square(fb, 11 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
+  //draw_square(fb, 12 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
+  //draw_square(fb, 13 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
+  //draw_square(fb, 13 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, 0x7ff);
+  //draw_square(fb, 14 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
+  //draw_square(fb, 14 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, 0x7ff);
+  //draw_square(fb, 14 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, 0x7ff);
 
 
 
-  //for (int i = 0; i < level_size; i++) {
-  //  if (i % 3 == 1) {
-  //    draw_square(fb, i * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
-  //    draw_square(fb, i * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, 0x7ff);
-  //  } else {
-  //    draw_square(fb, i * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
-  //  }
-  //}
+  for (int i = 7; i < level_size; i++) {
+    if (i % 3 == 1) {
+      draw_square(fb, i * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, 0x7ff);
+      draw_square(fb, i * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, 0x7ff);
+    } else {
+      draw_square(fb, i * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, 0x7ff);
+    }
+  }
 }
