@@ -15,6 +15,7 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
   loop_delay.tv_sec = 0;
   loop_delay.tv_nsec = 1000 * 1000;
   uint32_t progress = 1 << 31;
+  int lose = 0;
 
   player_t cube;
   cube.coords.x = 0; // Center of the screen
@@ -62,12 +63,12 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
       break;
     }
 
-
-    // compute pos of PLAYER
     player_compute_pos(GRAVITY, r, &cube);
+
     // compute colision with floor
     if (CheckCollisionPlayerFloor(floor, old_floor, &cube, &key)) {
-      printf("seems like we got a collision with a vertical wall!\n");
+      lose = 1;
+      //speed_level += 5;
     }
     // set pixels' values in the buffer
     for (ptr = 0; ptr < SCREEN_WIDTH * SCREEN_HEIGHT; ptr++) {
@@ -80,17 +81,21 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
     draw_level(fb, &floor, &floor_level, shift);
     printf("level of a block %d\n", floor_level);
 
-    handle_loss(fb, shift);
-
     // draw LINE
     for (j=0; j < SCREEN_WIDTH; j++) {
       draw_pixel(fb, j, BASE_LINE, 0x7ff);
     }
     // draw PLAYER
-    for (j=0; j < PLAYER_HIGHT; j++) {
-      for (i=0; i < PLAYER_HIGHT; i++) {
-        draw_pixel(fb, i + cube.coords.x, j + cube.coords.y, 0x714);
+    if (!lose) {
+      for (j=0; j < PLAYER_HIGHT; j++) {
+        for (i=0; i < PLAYER_HIGHT; i++) {
+          draw_pixel(fb, i + cube.coords.x, j + cube.coords.y, 0x714);
+        }
       }
+      draw_rect_borders(fb, cube.coords, PLAYER_HIGHT, PLAYER_HIGHT, 24, 0x0);
+      draw_rect_borders(fb, cube.coords, PLAYER_HIGHT, PLAYER_HIGHT, 12, 0x714);
+    } else {
+          handle_loss(fb, shift);
     }
 
     // write the data from buffer to the lcd display
@@ -106,46 +111,34 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
   }
 }
 
-void handle_loss(unsigned short *fb, int shift) {
-    char *game_over = "Game over :(";
+void draw_scene_text(unsigned short *fb, int shift, char *text) {
     font_descriptor_t *fdes;
     fdes = &font_winFreeSystem14x16;
     int x = 50;
     int y = 40;
 
-    for (int i = 0; i < strlen(game_over); i++) {
-      char ch = game_over[i];
+    for (int i = 0; i < strlen(text); i++) {
+      char ch = text[i];
       draw_char(fdes, fb, x, y, ch, 0xb3ffff);
-      x += (char_width(fdes, game_over[i]) * 3.5 + 5);
+      x += (char_width(fdes, text[i]) * 3.5 + 5);
   }
-  
 }
+
+void handle_loss(unsigned short *fb, int shift) {
+    draw_scene_text(fb, shift, "Game over :(");
+}
+
+void handle_win(unsigned short *fb, int shift) {
+  draw_scene_text(fb, shift, "You won !");
+}
+
 
 void draw_level(unsigned short *fb, int *floor, int *floor_level, int shift) {
   int level_size = 100;
   int level_map[level_size];
   int step = PLAYER_HIGHT;
 
-
-  //draw_square(fb, 5 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
-  //draw_square(fb, 6 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
-  //draw_square(fb, 7 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
-  //draw_square(fb, 8 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
-  //draw_square(fb, 8 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, 0x7ff);
-  //draw_square(fb, 9 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
-  //draw_square(fb, 10 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
-  //draw_square(fb, 10 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, 0x7ff);
-  //draw_square(fb, 11 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
-  //draw_square(fb, 12 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
-  //draw_square(fb, 13 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
-  //draw_square(fb, 13 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, 0x7ff);
-  //draw_square(fb, 14 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, 0x7ff);
-  //draw_square(fb, 14 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, 0x7ff);
-  //draw_square(fb, 14 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, 0x7ff);
-
-
-
-  for (int i = 7; i < level_size; i++) {
+  for (int i = 8; i < level_size; i++) {
     if (i % 3 == 1) {
       draw_square(fb, i * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, 0x7ff);
       draw_square(fb, i * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, 0x7ff);
