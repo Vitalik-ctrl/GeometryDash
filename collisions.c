@@ -54,15 +54,16 @@ bool CheckCollisionSquareTriangle(Vector2 squarePos, float squareSize, Vector2 v
 }
 
 bool CheckCollisionPlayerFloor(int floor, int old_floor, player_t *player, input_t *input) {
+  // collision with vertical object -- a square
+  if (old_floor > floor && !input->R_jump) {
+    return true;
+  } 
+  
   if (player->coords.y > (floor - player->size)) {
     player->coords.y = floor - player->size;
     player->movement_y = 0;
     input->R_jump = false;
   }
-  // collision with vertical object -- a square
-  if (old_floor > floor && !input->R_jump) {
-    return true;
-  } 
 
   return false;
 }

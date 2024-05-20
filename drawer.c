@@ -19,12 +19,14 @@ void draw_square(unsigned short *fb, int x, int y, int size, int *floor, int *fl
       draw_pixel(fb, i + x, j + y, color);
     }
   }
-  int current_level = (BASE_LINE - y) / PLAYER_HIGHT;
-  // change the floor variable according to the pos of this square
-  if (current_level >= *floor_level && (x >= START_POS_X && x <= START_POS_X + PLAYER_HIGHT) || (x + PLAYER_HIGHT >= START_POS_X && x + PLAYER_HIGHT <= START_POS_X + PLAYER_HIGHT)) {
-    *floor_level = (BASE_LINE - y) / PLAYER_HIGHT;
-    *floor = y;
-  }
+  if (*floor != -1) {
+    int current_level = (BASE_LINE - y) / PLAYER_HIGHT;
+    // change the floor variable according to the pos of this square
+    if (current_level >= *floor_level && (x >= START_POS_X && x <= START_POS_X + PLAYER_HIGHT) || (x + PLAYER_HIGHT >= START_POS_X && x + PLAYER_HIGHT <= START_POS_X + PLAYER_HIGHT)) {
+      *floor_level = (BASE_LINE - y) / PLAYER_HIGHT;
+      *floor = y;
+    }
+  } 
 }
 
 void draw_rect(unsigned short *fb, Vector2 coords, int width, int height, unsigned short color) {

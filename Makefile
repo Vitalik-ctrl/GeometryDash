@@ -17,7 +17,7 @@ TARGET_IP ?= 192.168.223.157
 ifeq ($(TARGET_IP),)
 ifneq ($(filter debug run,$(MAKECMDGOALS)),)
 $(warning The target IP address is not set)
-$(warning Run as "TARGET_IP=192.168.202.xxx make run" or modify Makefile)
+$(warning Run as "TARGET_IP=192.168.202.157 make run" or modify Makefile)
 TARGET_IP ?= 192.168.202.xxx
 endif
 endif
