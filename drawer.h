@@ -25,7 +25,7 @@ void draw_square(unsigned short *fb, int x, int y, int size, int *floor, int *fl
 
 void draw_base(unsigned short *fb, unsigned short color);
 
-void draw_triangle(unsigned short *fb, int start_pos, int end_pos, unsigned short color);
+void draw_triangle(unsigned short *fb, Vector2 v1, Vector2 v2, Vector2 v3, int *floor, int *floor_level, unsigned short color);
 
 void draw_line(unsigned short *fb);
 

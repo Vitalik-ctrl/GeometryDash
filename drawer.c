@@ -47,14 +47,19 @@ void draw_base(unsigned short *fb, unsigned short color) {
 }
 
 // Draw triangle
-void draw_triangle(unsigned short *fb, int start_pos, int end_pos, unsigned short color) {
-  for (int j = BASE; j > OBSTACLE_HEIGHT; j--) {
-    for (int i = start_pos; i < end_pos; i++) {
+void draw_triangle(unsigned short *fb, Vector2 v1, Vector2 v2, Vector2 v3, int *floor, int *floor_level, unsigned short color) {
+  int v1x_val = v1.x;
+  int v2x_val = v2.x;
+  for (int j = v1.y; j > v2.y; j--) {
+    for (int i = v1.x; i < v3.x; i++) {
       draw_pixel(fb, i, j, color);
     }
-    start_pos++;
-    end_pos--;
+    v1.x++;
+    v3.x--;
   }
+  v1.x = v1x_val;
+  v2.x = v2x_val;
+  
 }
 
 void draw_line(unsigned short *fb) {

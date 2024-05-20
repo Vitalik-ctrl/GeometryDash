@@ -48,11 +48,6 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
           current_progress_unit >>= 1;
       }
 
-      if (progress > (1<<10)-1) {
-          printf("Win");
-          handle_win(fb, shift);
-      }
-
       // reading from knobs and ending the loop if knob is pressed
       int r = *(volatile uint32_t*)(mem_base + SPILED_REG_KNOBS_8BIT_o);
       if (((r>>24)&R_KNOB_o) != 0 && !(key.R_jump) && shift == 0) {
@@ -91,7 +86,7 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
         old_floor = floor;
         floor = BASE_LINE;
       }
-      draw_level(fb, &floor, &floor_level, shift);
+      draw_level2(fb, &floor, &floor_level, shift);
       // printf("level of a block %d\n", floor_level);
       if (lose) {
         floor = -100;
@@ -119,6 +114,12 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
         draw_rect_borders(fb, cube.coords, PLAYER_HIGHT, PLAYER_HIGHT, 24, 0x0);
         draw_rect_borders(fb, cube.coords, PLAYER_HIGHT, PLAYER_HIGHT, 12, 0x714);
         handle_loss(fb, shift);
+      }
+
+
+      if ((progress >= (1<<32)-1) && !lose) {
+          printf("Win");
+          handle_win(fb, shift);
       }
 
       // write the data from buffer to the lcd display
@@ -183,11 +184,13 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
     int step = PLAYER_HIGHT;
 
     for (int i = 8; i < level_size; i++) {
-      if (i % 3 == 1) {
-        draw_square(fb, i * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, 0xa1fb00);
-        draw_square(fb, i * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, 0xa1fb00);
-      } else if (i % 4 == 0) {
-        draw_square(fb, i * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, 0xa1fb00);
-      } 
+       if (i * step - shift >= - PLAYER_HIGHT && i * step - shift <= SCREEN_WIDTH) {
+        if (i % 3 == 1) {
+          draw_square(fb, i * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, 0xa1fb00);
+          draw_square(fb, i * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, 0xa1fb00);
+        } else if (i % 4 == 0) {
+          draw_square(fb, i * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, 0xa1fb00);
+        } 
+      }
     }
   }
