@@ -37,13 +37,18 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
 
     uint32_t current_progress_unit = progress;
     int iterator = 0;
-    int last_position = PLAYER_HIGHT * 100 + END_SPACE;
+    int last_position = PLAYER_HIGHT * 30 + END_SPACE;
     while (1) {
     iterator++;
     *(volatile uint32_t*)(mem_base + SPILED_REG_LED_LINE_o) = progress; 
     if (iterator%(last_position/speed_level/32) == 0) {
         progress += current_progress_unit >> 1; 
         current_progress_unit >>= 1;
+    }
+
+    if (progress > (1<<10)-1) {
+        printf("Win");
+        handle_win(fb, shift);
     }
 
     // reading from knobs and ending the loop if knob is pressed
@@ -78,7 +83,7 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
     // draw obstacless
     old_floor = floor;
     floor = BASE_LINE;
-    draw_level(fb, &floor, &floor_level, shift);
+    draw_level2(fb, &floor, &floor_level, shift);
     printf("level of a block %d\n", floor_level);
 
     // draw LINE
@@ -111,25 +116,29 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
   }
 }
 
-void draw_scene_text(unsigned short *fb, int shift, char *text) {
+void draw_scene_text(unsigned short *fb, int shift, char *text, Vector2 position) {
     font_descriptor_t *fdes;
     fdes = &font_winFreeSystem14x16;
-    int x = 50;
-    int y = 40;
 
     for (int i = 0; i < strlen(text); i++) {
       char ch = text[i];
-      draw_char(fdes, fb, x, y, ch, 0xb3ffff);
-      x += (char_width(fdes, text[i]) * 3.5 + 5);
+      draw_char(fdes, fb, position.x, position.y, ch, 0xb3ffff);
+      position.x += (char_width(fdes, text[i]) * 3.5 + 5);
   }
 }
 
 void handle_loss(unsigned short *fb, int shift) {
-    draw_scene_text(fb, shift, "Game over :(");
+  Vector2 pos;
+  pos.x = 60;
+  pos.y = 40;
+    draw_scene_text(fb, shift, "Game over :(", pos);
 }
 
 void handle_win(unsigned short *fb, int shift) {
-  draw_scene_text(fb, shift, "You won !");
+  Vector2 pos;
+  pos.x = 100;
+  pos.y = 140;
+  draw_scene_text(fb, shift, "You won !", pos);
 }
 
 
@@ -145,5 +154,20 @@ void draw_level(unsigned short *fb, int *floor, int *floor_level, int shift) {
     } else {
       draw_square(fb, i * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, 0x7ff);
     }
+  }
+}
+
+void draw_level2(unsigned short *fb, int *floor, int *floor_level, int shift) {
+  int level_size = 30;
+  int level_map[level_size];
+  int step = PLAYER_HIGHT;
+
+  for (int i = 8; i < level_size; i++) {
+    if (i % 3 == 1) {
+      draw_square(fb, i * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, 0xa1fb00);
+      draw_square(fb, i * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, 0xa1fb00);
+    } else if (i % 4 == 0) {
+      draw_square(fb, i * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, 0xa1fb00);
+    } 
   }
 }
