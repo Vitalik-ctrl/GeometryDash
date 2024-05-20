@@ -21,7 +21,7 @@ void draw_back(unsigned short *fb, unsigned short color);
 
 void draw_pixel(unsigned short *fb, int x, int y, unsigned short color);
 
-void draw_square(unsigned short *fb, int x, int y, int size, int *floor, int *floor_level, unsigned short color);
+void draw_square(unsigned short *fb, int x, int y, int size, int *floor, int *floor_level, player_t *player, unsigned short color);
 
 void draw_base(unsigned short *fb, unsigned short color);
 

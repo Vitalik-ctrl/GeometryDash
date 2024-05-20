@@ -2,7 +2,7 @@
 
 #include "scene.h"
 
-void draw_level(unsigned short *fb, int *floor, int *floor_level, int shift);
+void draw_level1(unsigned short *fb, int *floor, int *floor_level, player_t *player, int shift);
 
 void activate_scene(unsigned short *fb, font_descriptor_t *fdes, 
           unsigned char *parlcd_mem_base, unsigned char *mem_base, int speed_level) {
@@ -32,12 +32,13 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
   int floor = BASE_LINE;
   int old_floor = BASE_LINE;
   int floor_level = 0;
+  bool in_air = false;
   int lose = 0;
   bool start_button_is_still_pressed = false;
 
     uint32_t current_progress_unit = progress;
     int iterator = 0;
-    int last_position = PLAYER_HIGHT * 30 + END_SPACE;
+    int last_position = PLAYER_HIGHT * 100 + END_SPACE;
 
 
     while (1) {
@@ -50,11 +51,11 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
 
       // reading from knobs and ending the loop if knob is pressed
       int r = *(volatile uint32_t*)(mem_base + SPILED_REG_KNOBS_8BIT_o);
-      if (((r>>24)&R_KNOB_o) != 0 && !(key.R_jump) && shift == 0) {
+      if (((r>>24)&R_KNOB_o) != 0 && !(key.R_jump) && !in_air && shift == 0) {
         // this is to prevent the jump caused by pressing START
         start_button_is_still_pressed = true;
       }
-      else if (((r>>24)&R_KNOB_o) != 0 && !(key.R_jump) && !start_button_is_still_pressed) {
+      else if (((r>>24)&R_KNOB_o) != 0 && !(key.R_jump) && !in_air && !start_button_is_still_pressed) {
         cube.movement_y = - JUMP_CONSTANT;
         key.R_jump = true;
       }
@@ -68,14 +69,14 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
       player_compute_pos(GRAVITY, r, &cube);
 
       // compute colision with floor
-      if (!lose && CheckCollisionPlayerFloor(floor, old_floor, &cube, &key)) {
+      if (!lose && CheckCollisionPlayerFloor(floor, old_floor, &cube, &key, &in_air)) {
         printf("seems like we got a collision with a vertical wall!\n");
         cube.movement_y = - JUMP_CONSTANT;
         lose = 1;
         cube.movement_x = speed_level + 3;
         speed_level *= 2;
       } 
-
+      printf("player lower part hight %d\n", (cube.coords.y + PLAYER_HIGHT));
       // set pixels' values in the buffer
       for (ptr = 0; ptr < SCREEN_WIDTH * SCREEN_HEIGHT; ptr++) {
         fb[ptr] = 0u;
@@ -86,7 +87,7 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
         old_floor = floor;
         floor = BASE_LINE;
       }
-      draw_level2(fb, &floor, &floor_level, shift);
+      draw_level1(fb, &floor, &floor_level, &cube, shift);
       // printf("level of a block %d\n", floor_level);
       if (lose) {
         floor = -100;
@@ -161,7 +162,7 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
   }
 
 
-  void draw_level(unsigned short *fb, int *floor, int *floor_level, int shift) {
+  void draw_level1(unsigned short *fb, int *floor, int *floor_level, player_t *player, int shift) {
     int level_size = 100;
     int level_map[level_size];
     int step = PLAYER_HIGHT;
@@ -169,28 +170,11 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
     for (int i = 6; i < level_size; i++) {
       if (i * step - shift >= - PLAYER_HIGHT && i * step - shift <= SCREEN_WIDTH) {
         if (i % 3 == 1) {
-          draw_square(fb, i * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, 0x7ff);
-          draw_square(fb, i * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, 0x7ff);
+          draw_square(fb, i * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+          draw_square(fb, i * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
         } else {
-          draw_square(fb, i * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, 0x7ff);
+          draw_square(fb, i * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
         }
-      }
-    }
-  }
-
-  void draw_level2(unsigned short *fb, int *floor, int *floor_level, int shift) {
-    int level_size = 30;
-    int level_map[level_size];
-    int step = PLAYER_HIGHT;
-
-    for (int i = 8; i < level_size; i++) {
-       if (i * step - shift >= - PLAYER_HIGHT && i * step - shift <= SCREEN_WIDTH) {
-        if (i % 3 == 1) {
-          draw_square(fb, i * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, 0xa1fb00);
-          draw_square(fb, i * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, 0xa1fb00);
-        } else if (i % 4 == 0) {
-          draw_square(fb, i * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, 0xa1fb00);
-        } 
       }
     }
   }
