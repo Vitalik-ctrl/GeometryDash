@@ -8,6 +8,7 @@ void activate_menu(unsigned short *fb, font_descriptor_t *fdes, unsigned int col
   loop_delay.tv_sec = 0;
   loop_delay.tv_nsec = 15 * 100 * 100;
   int speed_level = 6;
+  int level = 1;
   uint32_t led_loading = 15;
 
   char *logo = "Geometry Dash";
@@ -67,7 +68,7 @@ void activate_menu(unsigned short *fb, font_descriptor_t *fdes, unsigned int col
     int r = *(volatile uint32_t*)(mem_base + SPILED_REG_KNOBS_8BIT_o);
     if (((r>>24)&R_KNOB_o) != 0 && play_active) {
         printf("Game activated\n\n\n");
-        activate_scene(fb, fdes, parlcd_mem_base, mem_base, speed_level);
+        level = activate_scene(fb, fdes, parlcd_mem_base, mem_base, speed_level, level);
     } else if (((r>>24)&R_KNOB_o) != 0 && pref_active) {
         speed_level = set_speed_level(activate_settings(fb, fdes, parlcd_mem_base, mem_base));
     }
