@@ -3,6 +3,7 @@
 #include "scene.h"
 
 void draw_level1(unsigned short *fb, int *floor, int *floor_level, player_t *player, int shift);
+void draw_level3(unsigned short *fb, int *floor, int *floor_level, player_t *player, int shift);
 
 void activate_scene(unsigned short *fb, font_descriptor_t *fdes, 
           unsigned char *parlcd_mem_base, unsigned char *mem_base, int speed_level) {
@@ -87,7 +88,7 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
         old_floor = floor;
         floor = BASE_LINE;
       }
-      draw_level1(fb, &floor, &floor_level, &cube, shift);
+      draw_level3(fb, &floor, &floor_level, &cube, shift);
       // printf("level of a block %d\n", floor_level);
       if (lose) {
         floor = -100;
@@ -177,4 +178,98 @@ void activate_scene(unsigned short *fb, font_descriptor_t *fdes,
         }
       }
     }
+  }
+
+  void draw_level3(unsigned short *fb, int *floor, int *floor_level, player_t *player, int shift) {
+    int level_size = 100;
+    int level_map[level_size];
+    int step = PLAYER_HIGHT;
+
+    // Colors for the rainbow effect
+    unsigned short colors[] = {0xF800, 0xF800, 0x07E0, 0x07E0, 0x07E0, 0xF81F, 0xF81F}; // Red, Orange, Yellow, Green, Cyan, Blue, Violet
+    int color_index = 0;
+
+    draw_square(fb, 10 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 11 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 12 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 12 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 13 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 13 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 14 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 14 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 14 * step - shift, BASE_LINE - 3 * step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 15 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 15 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 15 * step - shift, BASE_LINE - 3 * step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+
+    draw_square(fb, 18 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 18 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 19 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 19 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 20 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 20 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 21 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 22 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+
+
+
+    for (int i = 26; i < 56; i++) {
+      int x = i * step - shift;
+      
+      if (x >= -PLAYER_HIGHT && x <= SCREEN_WIDTH) {
+          if (i % 8 == 0 || i % 8 == 1) {
+              // Double block high obstacle
+              draw_square(fb, x, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+              draw_square(fb, x, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+          } else if (i % 8 == 2 || i % 8 == 3) {
+              // Single block high obstacle
+              draw_square(fb, x, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+          } else if (i % 8 == 4) {
+              // Small gap
+              // No block
+          } else if (i % 8 == 5 || i % 8 == 6) {
+              // Double block high obstacle
+              draw_square(fb, x, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+              draw_square(fb, x, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+          } else if (i % 8 == 7) {
+              // Single block high obstacle
+              draw_square(fb, x, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+          }
+      }
+    }
+    // Original provided pattern
+    draw_square(fb, 62 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+
+    draw_square(fb, 65 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 65 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+
+    draw_square(fb, 68 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 68 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+
+    draw_square(fb, 71 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 72 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+
+    draw_square(fb, 75 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+
+    draw_square(fb, 78 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 78 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+
+    // Extending the pattern manually up to 100 blocks
+    draw_square(fb, 81 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+
+    draw_square(fb, 84 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 84 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+
+    draw_square(fb, 87 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 87 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+
+    draw_square(fb, 90 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 91 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+
+    draw_square(fb, 94 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+
+    draw_square(fb, 97 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+    draw_square(fb, 97 * step - shift, BASE_LINE - 2 * step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
+
+    draw_square(fb, 100 * step - shift, BASE_LINE - step, PLAYER_HIGHT, floor, floor_level, player, 0x7ff);
   }
