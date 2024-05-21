@@ -1,0 +1,9 @@
+
+(player->coords.y + PLAYER_HIGHT <= y)
+
+
+
+
+
+
+(current_level >= *floor_level && ((x >= START_POS_X && x <= START_POS_X + PLAYER_HIGHT) && )) || (x + PLAYER_HIGHT >= START_POS_X && x + PLAYER_HIGHT <= START_POS_X + PLAYER_HIGHT &&) {

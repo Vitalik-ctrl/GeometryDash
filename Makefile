@@ -9,14 +9,15 @@ LDFLAGS += -static
 LDLIBS += -lrt -lpthread
 #LDLIBS += -lm
 
-SOURCES = scene.c mzapo_phys.c mzapo_parlcd.c serialize_lock.c drawer.c
+SOURCES = menu.c mzapo_phys.c mzapo_parlcd.c serialize_lock.c drawer.c collisions.c movement.c settings.c scene.c main.c
+# SOURCES = scene.c mzapo_phys.c mzapo_parlcd.c serialize_lock.c drawer.c collisions.c
 SOURCES += font_prop14x16.c font_rom8x16.c
 TARGET_EXE = Application
-TARGET_IP ?= 192.168.223.114
+TARGET_IP ?= 192.168.223.102
 ifeq ($(TARGET_IP),)
 ifneq ($(filter debug run,$(MAKECMDGOALS)),)
 $(warning The target IP address is not set)
-$(warning Run as "TARGET_IP=192.168.202.xxx make run" or modify Makefile)
+$(warning Run as "TARGET_IP=192.168.202.157 make run" or modify Makefile)
 TARGET_IP ?= 192.168.202.xxx
 endif
 endif
@@ -74,7 +75,7 @@ copy-executable: $(TARGET_EXE)
 	ssh $(SSH_OPTIONS) -t $(TARGET_USER)@$(TARGET_IP) killall gdbserver 1>/dev/null 2>/dev/null || true
 	ssh $(SSH_OPTIONS) $(TARGET_USER)@$(TARGET_IP) mkdir -p $(TARGET_DIR)
 	scp $(SSH_OPTIONS) $(TARGET_EXE) $(TARGET_USER)@$(TARGET_IP):$(TARGET_DIR)/$(TARGET_EXE)
-	#scp $(SSH_OPTIONS) image.ppm $(TARGET_USER)@$(TARGET_IP):$(TARGET_DIR)/image.ppm
+	scp $(SSH_OPTIONS) image.ppm $(TARGET_USER)@$(TARGET_IP):$(TARGET_DIR)/image.ppm
 
 run: copy-executable $(TARGET_EXE)
 	ssh $(SSH_OPTIONS) -t $(TARGET_USER)@$(TARGET_IP) $(TARGET_DIR)/$(TARGET_EXE)
